@@ -213,9 +213,9 @@ describe('SlackChannel', () => {
         project: 'test-project',
       };
 
-      const result = await slackChannel._sendImpl(notification);
-
-      expect(result).toBe(false);
+      await expect(slackChannel._sendImpl(notification)).rejects.toThrow(
+        'Network error'
+      );
     });
 
     test('should throw error when no webhook or token configured', async () => {

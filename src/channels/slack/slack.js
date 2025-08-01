@@ -76,12 +76,12 @@ class SlackChannel extends NotificationChannel {
       } else {
         // Clean up failed session
         await this._removeSession(sessionId);
-        return false;
+        throw new Error('Slack API returned unsuccessful response');
       }
     } catch (error) {
       this.logger.error('Failed to send Slack notification:', error.message);
       await this._removeSession(sessionId);
-      return false;
+      throw error; // Re-throw to let base class handle it
     }
   }
 
