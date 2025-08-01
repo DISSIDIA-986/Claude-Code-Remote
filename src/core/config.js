@@ -168,6 +168,7 @@ class ConfigManager {
       fs.writeFileSync(
         this.userConfigPath,
         JSON.stringify(this._config, null, 2)
+      );
 
       // Save channels config
       fs.writeFileSync(

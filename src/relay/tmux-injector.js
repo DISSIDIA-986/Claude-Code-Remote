@@ -146,7 +146,8 @@ class TmuxInjector {
                     this.log.info(
                       `Claude state after injection: ${capture.output
                         .slice(-200)
-
+                        .replace(/\n/g, ' ')}`
+                    );
                   }
 
                   // Wait and check if confirmation is needed
@@ -198,9 +199,10 @@ class TmuxInjector {
         output.includes('Do you want to proceed?') &&
         (output.includes('1. Yes') ||
           output.includes("2. Yes, and don't ask again"))
-
+      ) {
         this.log.info(
           `Detected multi-option confirmation, selecting option 2 (attempt ${attempts})`
+        );
 
         // Select "2. Yes, and don't ask again" to avoid future confirmation dialogs
         await new Promise(resolve => {
@@ -238,7 +240,7 @@ class TmuxInjector {
       if (output.includes('❯ 1. Yes') || output.includes('▷ 1. Yes')) {
         this.log.info(
           `Detected single option confirmation, selecting option 1 (attempt ${attempts})`
-
+        );
 
         await new Promise(resolve => {
           exec(`tmux send-keys -t ${this.sessionName} '1'`, error => {

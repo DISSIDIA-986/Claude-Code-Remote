@@ -152,7 +152,7 @@ class TmuxMonitor {
           !line.startsWith('╰') &&
           !line.startsWith('> ') &&
           !line.includes('? for shortcuts'))
-
+      ) {
         if (line.startsWith('⏺ ')) {
           inResponse = true;
           responseLines = [line.substring(2).trim()]; // Remove "⏺ " prefix

@@ -12,7 +12,7 @@ const fs = require('fs');
 class SlackChannel extends NotificationChannel {
   constructor(config = {}) {
     super('slack', config);
-    this.webhook = config.webhook;
+        this.webhook = process.env.SLACK_WEBHOOK_URL || config.webhook;
     this.token = config.token;
     this.channel = config.channel;
     this.username = config.username || 'Claude-Code-Remote';

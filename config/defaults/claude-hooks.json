@@ -17,7 +17,7 @@
         "matcher": "*",
         "hooks": [
           {
-            "type": "command", 
+            "type": "command",
             "command": "node {TASKPING_ROOT}/taskping.js notify --type waiting",
             "timeout": 5
           }

@@ -2,41 +2,37 @@ module.exports = {
   env: {
     node: true,
     es2021: true,
-    jest: true
+    jest: true,
   },
-  extends: [
-    'eslint:recommended',
-    'prettier',
-    'plugin:prettier/recommended'
-  ],
+  extends: ['eslint:recommended', 'prettier', 'plugin:prettier/recommended'],
   parserOptions: {
     ecmaVersion: 2021,
-    sourceType: 'module'
+    sourceType: 'module',
   },
-  plugins: [
-    'prettier'
-  ],
+  plugins: ['prettier'],
   rules: {
     'prettier/prettier': 'error',
     'no-console': 'off', // Allow console.log in Node.js project
-    'no-unused-vars': ['error', { 
-      argsIgnorePattern: '^_',
-      varsIgnorePattern: '^_' 
-    }],
+    'no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      },
+    ],
     'prefer-const': 'error',
     'no-var': 'error',
-    'eqeqeq': ['error', 'always'],
+    eqeqeq: ['error', 'always'],
     'no-trailing-spaces': 'error',
-    'semi': ['error', 'always'],
-    'quotes': ['error', 'single', { 
-      avoidEscape: true,
-      allowTemplateLiterals: true 
-    }]
+    semi: ['error', 'always'],
+    quotes: [
+      'error',
+      'single',
+      {
+        avoidEscape: true,
+        allowTemplateLiterals: true,
+      },
+    ],
   },
-  ignorePatterns: [
-    'node_modules/',
-    'coverage/',
-    'dist/',
-    '*.min.js'
-  ]
+  ignorePatterns: ['node_modules/', 'coverage/', 'dist/', '*.min.js'],
 };

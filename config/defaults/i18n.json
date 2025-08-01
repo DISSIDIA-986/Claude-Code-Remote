@@ -5,7 +5,7 @@
       "message": "[{project}] Task completed, Claude is waiting for next instruction"
     },
     "waiting": {
-      "title": "Claude Code - Waiting for Input", 
+      "title": "Claude Code - Waiting for Input",
       "message": "[{project}] Claude needs your further guidance"
     }
   },

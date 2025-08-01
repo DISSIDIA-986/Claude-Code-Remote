@@ -5,7 +5,9 @@
 ## 📋 Complete Usage Workflow
 
 ### Step 1: Start Email Listening Service
+
 Run in Terminal 1:
+
 ```bash
 cd /Users/jessytsui/dev/TaskPing
 npm run relay:pty
@@ -14,7 +16,9 @@ npm run relay:pty
 This will start the email listening service, monitoring replies to `noreply@example.com`.
 
 ### Step 2: Start Claude Code and Integrate TaskPing
+
 Run in Terminal 2:
+
 ```bash
 # Start Claude Code
 claude
@@ -24,7 +28,9 @@ claude
 ```
 
 ### Step 3: Configure Claude Code Hooks (if not configured)
+
 Run in Claude Code:
+
 ```bash
 # View current hook configuration
 cat ~/.config/claude-code/settings/hooks.json
@@ -36,6 +42,7 @@ cat ~/.config/claude-code/settings/hooks.json
 ## 📧 Email Reply Test Workflow
 
 ### Method 1: Manual Email Test
+
 ```bash
 # Run in TaskPing directory
 node test-smtp-token.js
@@ -45,6 +52,7 @@ This will send a test email to `user@example.com` with a subject containing Toke
 `[TaskPing #XXXXXXXX] Claude Code Task Completed - TaskPing-Token-Test`
 
 ### Method 2: Integration Test
+
 1. Execute a task in Claude Code
 2. After task completion, TaskPing will automatically send email notification
 3. Email will be sent to configured mailbox (`user@example.com`)
@@ -52,20 +60,27 @@ This will send a test email to `user@example.com` with a subject containing Toke
 ## 💌 How to Reply to Send Commands
 
 ### After Receiving Email:
+
 1. Receive email at `user@example.com` with subject like:
+
    ```
    [TaskPing #A53PXR7F] Claude Code Task Completed - Project Name
    ```
 
 2. **Reply directly to the email** with commands in the body:
+
    ```
    Continue optimizing code
    ```
+
    or
+
    ```
    Generate unit tests
    ```
+
    or
+
    ```
    Explain the purpose of this function
    ```
@@ -79,13 +94,14 @@ This will send a test email to `user@example.com` with a subject containing Toke
 ## 🔧 Configuration File Description
 
 ### .env Configuration
+
 ```env
 # Outgoing Mail Configuration (Feishu Email)
 SMTP_HOST=smtp.feishu.cn
 SMTP_USER=noreply@example.com
 SMTP_PASS=your-smtp-password
 
-# Incoming Mail Configuration (Feishu Email)  
+# Incoming Mail Configuration (Feishu Email)
 IMAP_HOST=imap.feishu.cn
 IMAP_USER=noreply@example.com
 IMAP_PASS=your-imap-password
@@ -100,18 +116,23 @@ ALLOWED_SENDERS=user@example.com
 ## 🐛 Troubleshooting
 
 ### 1. Not Receiving Email Replies
+
 Check:
+
 - Email listening service is running (`npm run relay:pty`)
 - Reply is sent from whitelisted email (`user@example.com`)
 - Email subject contains correct Token format
 
 ### 2. Commands Not Injected into Claude Code
+
 Check:
+
 - Claude Code is still running
 - PTY session is still valid (Token not expired)
 - Check service log output
 
 ### 3. View Debug Logs
+
 ```bash
 # View detailed email listening logs
 DEBUG=true npm run relay:pty
@@ -120,6 +141,7 @@ DEBUG=true npm run relay:pty
 ## 📱 Supported Email Clients
 
 Users can reply from any email to `noreply@example.com`:
+
 - ✅ Gmail Web/Client
 - ✅ Mobile Gmail App
 - ✅ Apple Mail
@@ -138,6 +160,7 @@ Users can reply from any email to `noreply@example.com`:
 ## 🎯 Real-world Use Cases
 
 ### Scenario 1: Long Build Process
+
 ```
 1. Start project build in Claude Code
 2. Leave computer, receive build completion email on phone
@@ -146,6 +169,7 @@ Users can reply from any email to `noreply@example.com`:
 ```
 
 ### Scenario 2: Code Review
+
 ```
 1. Claude Code completes code generation
 2. Receive email notification

@@ -58,7 +58,7 @@ claude --version
 2.  **创建密码**: 在同一页面，点击 **“应用专用密码” (App Passwords)**。
 3.  在 “选择应用” 菜单中，选择 **“其他（自定义名称）”**。
 4.  输入一个名称 (例如 `Claude-Code-Remote`) 并点击 **“生成”**。
-5.  Google 会生成一个16位的密码。**立即复制这个密码**，它只会出现一次。
+5.  Google 会生成一个 16 位的密码。**立即复制这个密码**，它只会出现一次。
 
 ### 2. 下载并安装
 
@@ -76,13 +76,14 @@ npm install
 ### 3. 配置环境变量
 
 1.  从模板复制配置文件:
+
     ```bash
     cp .env.example .env
     ```
 
 2.  使用编辑器打开 `.env` 文件 (`nano .env` 或 `code .env`)。
 
-3.  **仔细填写以下字段**: 
+3.  **仔细填写以下字段**:
 
     ```ini
     # --- 邮件服务器配置 ---
@@ -117,22 +118,30 @@ npm install
 ```json
 {
   "hooks": {
-    "Stop": [{
-      "matcher": "*",
-      "hooks": [{
-        "type": "command",
-        "command": "node /Users/niuyp/Documents/github.com/Claude-Code-Remote/claude-remote.js notify --type completed",
-        "timeout": 5
-      }]
-    }],
-    "SubagentStop": [{
-      "matcher": "*",
-      "hooks": [{
-        "type": "command",
-        "command": "node /Users/niuyp/Documents/github.com/Claude-Code-Remote/claude-remote.js notify --type waiting",
-        "timeout": 5
-      }]
-    }]
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /Users/niuyp/Documents/github.com/Claude-Code-Remote/claude-remote.js notify --type completed",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /Users/niuyp/Documents/github.com/Claude-Code-Remote/claude-remote.js notify --type waiting",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -182,9 +191,9 @@ tmux send-keys -t claude-session 'claude' Enter
 # tmux new-session -s claude-session 'claude'  # 不推荐
 ```
 
-*   **重要提示**: `claude` 的工作目录就是您运行 `tmux` 命令时所在的目录。请确保这个目录是您的目标开发项目。
-*   **检查会话状态**: 使用 `tmux list-sessions` 确认会话已成功创建。
-*   **重新连接**: 在任何终端窗口输入 `tmux attach -t claude-session`。
+- **重要提示**: `claude` 的工作目录就是您运行 `tmux` 命令时所在的目录。请确保这个目录是您的目标开发项目。
+- **检查会话状态**: 使用 `tmux list-sessions` 确认会话已成功创建。
+- **重新连接**: 在任何终端窗口输入 `tmux attach -t claude-session`。
 
 ### 在手机上远程控制
 
@@ -233,7 +242,7 @@ ls -F
 2.  直接 **回复 (Reply)** 该邮件。
 3.  在回复正文中输入您的指令，例如：
 
-    > **把所有变更提交了, commit message写: "Test commit via Claude-Code-Remote"**
+    > **把所有变更提交了, commit message 写: "Test commit via Claude-Code-Remote"**
 
 4.  发送邮件。
 
@@ -253,7 +262,7 @@ ls -F
 
 ## 🔧 故障排除 (Troubleshooting)
 
-### 问题1：`tmux new-session -s claude-session 'claude'` 立即退出并显示 `[exited]`
+### 问题 1：`tmux new-session -s claude-session 'claude'` 立即退出并显示 `[exited]`
 
 **症状**: 执行 tmux 命令后，会话立即退出，可能还会出现终端乱码。
 
@@ -262,6 +271,7 @@ ls -F
 **解决方案**:
 
 1. **检查 claude 命令是否存在**:
+
    ```bash
    which claude
    ```
@@ -269,15 +279,17 @@ ls -F
 2. **如果显示 "command not found"**，请确保您已正确安装 claude CLI 工具。
 
 3. **如果 claude 是别名，检查配置**:
+
    ```bash
    grep "alias claude" ~/.zshrc
    ```
 
 4. **常见配置问题**: 确保您的 `~/.zshrc` 中只有一个 `claude` 别名定义：
+
    ```bash
    alias claude='~/.claude/local/claude'
    ```
-   
+
    **注意**: 一些老版本的文档可能提到 `--no-iterm-integration` 参数，但在新版本的 claude (1.0.62+) 中已不再需要此参数。
 
 5. **修复后重新加载配置**:
@@ -285,13 +297,14 @@ ls -F
    source ~/.zshrc
    ```
 
-### 问题2：钩子 (Hooks) 不工作
+### 问题 2：钩子 (Hooks) 不工作
 
 **症状**: `claude` 运行正常，但不发送邮件通知。
 
 **解决方案**:
 
 1. **检查 hooks 配置文件路径**:
+
    ```bash
    ls ~/.config/claude-code/settings/
    ls ~/.claude/
@@ -304,18 +317,20 @@ ls -F
    node /Users/niuyp/Documents/github.com/Claude-Code-Remote/claude-remote.js notify --type waiting
    ```
 
-### 问题2.1：钩子配置正确但仍不触发
+### 问题 2.1：钩子配置正确但仍不触发
 
 **症状**: 手动测试钩子命令可以发送邮件，但 Claude 执行命令后不触发钩子。
 
 **诊断步骤**:
 
 1. **验证钩子文件格式**:
+
    ```bash
    jq . ~/.claude/settings.json
    ```
 
 2. **检查钩子配置路径**:
+
    ```bash
    cat ~/.claude/settings.json | grep -A 10 hooks
    ```
@@ -330,25 +345,34 @@ ls -F
 **常见原因及解决方案**:
 
 1. **路径问题**: 确保钩子命令使用绝对路径:
+
    ```json
    {
      "hooks": {
-       "Stop": [{
-         "matcher": "*",
-         "hooks": [{
-           "type": "command",
-           "command": "/usr/local/bin/node /Users/niuyp/Documents/github.com/Claude-Code-Remote/claude-remote.js notify --type completed",
-           "timeout": 10
-         }]
-       }],
-       "SubagentStop": [{
-         "matcher": "*", 
-         "hooks": [{
-           "type": "command",
-           "command": "/usr/local/bin/node /Users/niuyp/Documents/github.com/Claude-Code-Remote/claude-remote.js notify --type waiting",
-           "timeout": 10
-         }]
-       }]
+       "Stop": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "/usr/local/bin/node /Users/niuyp/Documents/github.com/Claude-Code-Remote/claude-remote.js notify --type completed",
+               "timeout": 10
+             }
+           ]
+         }
+       ],
+       "SubagentStop": [
+         {
+           "matcher": "*",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "/usr/local/bin/node /Users/niuyp/Documents/github.com/Claude-Code-Remote/claude-remote.js notify --type waiting",
+               "timeout": 10
+             }
+           ]
+         }
+       ]
      }
    }
    ```
@@ -356,6 +380,7 @@ ls -F
 2. **增加超时时间**: 将 `timeout` 从 5 增加到 10 秒
 
 3. **使用完整的 node 路径**:
+
    ```bash
    # 找到 node 的完整路径
    which node
@@ -363,6 +388,7 @@ ls -F
    ```
 
 4. **重新启动 Claude 会话**以使配置生效:
+
    ```bash
    tmux kill-session -t claude-session
    tmux new-session -s claude-session -d
@@ -375,31 +401,34 @@ ls -F
    tmux send-keys -t claude-session '/help' Enter
    ```
 
-### 问题3：tmux 会话创建失败
+### 问题 3：tmux 会话创建失败
 
 **症状**: tmux 命令执行后显示 "no server running" 或会话立即消失。
 
 **解决方案**:
 
 1. **使用分步方式创建会话**:
+
    ```bash
    # 先创建会话
    tmux new-session -s claude-session -d
-   
+
    # 然后在会话中运行 claude
    tmux send-keys -t claude-session 'claude' Enter
    ```
 
 2. **或者使用前台模式创建**:
+
    ```bash
    # 创建前台会话
    tmux new-session -s claude-session
-   
+
    # 在 tmux 内部运行：claude
    # 然后按 Ctrl+b, d 分离会话
    ```
 
 3. **检查现有会话**:
+
    ```bash
    tmux list-sessions
    ```
@@ -409,7 +438,7 @@ ls -F
    tmux attach -t claude-session
    ```
 
-### 问题3.1：会话名称冲突 - `duplicate session: claude-session`
+### 问题 3.1：会话名称冲突 - `duplicate session: claude-session`
 
 **症状**: 执行 tmux 创建命令时提示 "duplicate session: claude-session"。
 
@@ -418,20 +447,23 @@ ls -F
 **解决方案**:
 
 1. **查看现有会话**:
+
    ```bash
    tmux list-sessions
    ```
 
 2. **连接到现有会话（推荐）**:
+
    ```bash
    tmux attach -t claude-session
    ```
 
 3. **或者删除现有会话后重新创建**:
+
    ```bash
    # 强制删除现有会话
    tmux kill-session -t claude-session
-   
+
    # 重新创建会话
    tmux new-session -s claude-session -d
    tmux send-keys -t claude-session 'claude' Enter
@@ -444,7 +476,7 @@ ls -F
    tmux send-keys -t claude-session-$(date +%H%M) 'claude' Enter
    ```
 
-### 问题3.2：终端乱码 - 显示类似 `64;1;2;4;6;17;18;21;22c64` 的内容
+### 问题 3.2：终端乱码 - 显示类似 `64;1;2;4;6;17;18;21;22c64` 的内容
 
 **症状**: 执行 tmux 命令后出现大量乱码，终端显示异常。
 
@@ -453,18 +485,20 @@ ls -F
 **解决方案**:
 
 1. **立即清理终端状态**:
+
    ```bash
    reset
    ```
 
 2. **使用推荐的分步创建方法**:
+
    ```bash
    # 正确方法
    tmux new-session -s claude-session -d
    tmux send-keys -t claude-session 'claude' Enter
-   
+
    # 避免使用这种方法（可能导致乱码）
-   # tmux new-session -s claude-session 'claude'  
+   # tmux new-session -s claude-session 'claude'
    ```
 
 3. **检查 claude 运行状态**:
@@ -472,7 +506,7 @@ ls -F
    tmux capture-pane -t claude-session -p
    ```
 
-### 问题3.3：tmux 会话不停打印空行，无法关闭
+### 问题 3.3：tmux 会话不停打印空行，无法关闭
 
 **症状**: 执行 `tmux attach -t session-name` 后，终端不停打印空行或重复信息，无法正常使用。
 
@@ -481,42 +515,48 @@ ls -F
 **解决方案**:
 
 1. **不要直接附加到有问题的会话**，先检查会话内容:
+
    ```bash
    tmux capture-pane -t session-name -p
    ```
 
 2. **尝试发送中断信号**:
+
    ```bash
    tmux send-keys -t session-name C-c
    ```
 
 3. **如果中断无效，直接终止会话**:
+
    ```bash
    tmux kill-session -t session-name
    ```
 
 4. **重新创建正常的会话**:
+
    ```bash
    tmux new-session -s claude-session -d
    tmux send-keys -t claude-session 'claude' Enter
    ```
 
 5. **预防措施**: 始终使用分步创建方法避免此类问题:
+
    ```bash
    # 推荐的安全方法
    tmux new-session -s session-name -d
    tmux send-keys -t session-name 'your-command' Enter
-   
+
    # 检查状态后再附加
    tmux capture-pane -t session-name -p
    tmux attach -t session-name  # 确认正常后再附加
    ```
 
-### 问题3.4：Claude 界面正常但输入无响应
+### 问题 3.4：Claude 界面正常但输入无响应
 
 **症状**: `tmux attach -t claude-session` 后能看到 claude 界面，但在输入框中输入命令后按 Enter 无反应。
 
 **可能原因**:
+
 1. Claude 进程可能处于等待状态或挂起
 2. 终端输入缓冲区问题
 3. Claude 内部状态异常
@@ -524,12 +564,14 @@ ls -F
 **诊断步骤**:
 
 1. **检查 claude 进程状态**:
+
    ```bash
    # 在另一个终端检查
    tmux capture-pane -t claude-session -p | tail -10
    ```
 
 2. **尝试发送特殊命令**:
+
    ```bash
    # 从外部发送命令测试
    tmux send-keys -t claude-session '/help' Enter
@@ -546,7 +588,8 @@ ls -F
 
 **解决方案**:
 
-1. **方法1: 重置 Claude 状态**:
+1. **方法 1: 重置 Claude 状态**:
+
    ```bash
    # 在 claude 会话中按 Ctrl+C 中断当前状态
    tmux send-keys -t claude-session C-c
@@ -554,29 +597,31 @@ ls -F
    tmux send-keys -t claude-session 'pwd' Enter
    ```
 
-2. **方法2: 完全重启 Claude 会话**:
+2. **方法 2: 完全重启 Claude 会话**:
+
    ```bash
    # 彻底重新创建会话
    tmux kill-session -t claude-session
    cd /path/to/your/project  # 切换到项目目录
    tmux new-session -s claude-session -d
    tmux send-keys -t claude-session 'claude' Enter
-   
+
    # 等待 claude 启动完成后再连接
    sleep 3
    tmux attach -t claude-session
    ```
 
-3. **方法3: 使用外部命令注入** (推荐用于远程控制):
+3. **方法 3: 使用外部命令注入** (推荐用于远程控制):
+
    ```bash
    # 不进入会话，直接从外部发送命令
    tmux send-keys -t claude-session 'ls -F' Enter
-   
+
    # 检查执行结果
    tmux capture-pane -t claude-session -p
    ```
 
-4. **方法4: 检查键盘映射和终端设置**:
+4. **方法 4: 检查键盘映射和终端设置**:
    ```bash
    # 在 tmux 会话内检查终端状态
    tmux send-keys -t claude-session 'echo $TERM' Enter
@@ -596,19 +641,21 @@ tmux capture-pane -t claude-session -p
 tmux attach -t claude-session
 ```
 
-### 问题4：邮件服务配置问题
+### 问题 4：邮件服务配置问题
 
 **症状**: 邮件监听服务启动失败或无法发送/接收邮件。
 
 **解决方案**:
 
 1. **检查 .env 文件配置**:
+
    ```bash
    cat .env | grep -E "SMTP|IMAP|EMAIL"
    ```
 
 2. **验证应用专用密码**:
-   - 确保使用的是16位应用专用密码，不是普通密码
+
+   - 确保使用的是 16 位应用专用密码，不是普通密码
    - 密码中不应包含空格或特殊字符
 
 3. **测试邮件连接**:
@@ -616,13 +663,14 @@ tmux attach -t claude-session
    npm run test:smtp
    ```
 
-### 问题5：权限问题
+### 问题 5：权限问题
 
 **症状**: 脚本执行时提示权限不足。
 
 **解决方案**:
 
 1. **确保脚本有执行权限**:
+
    ```bash
    chmod +x /Users/niuyp/Documents/github.com/Claude-Code-Remote/*.sh
    ```
@@ -654,11 +702,13 @@ tmux attach -t claude-session
 完成所有配置后，您可以使用以下命令快速启动整个系统：
 
 ### 终端 1：启动邮件监听服务
+
 ```bash
 cd /Users/niuyp/Documents/github.com/Claude-Code-Remote && npm run relay:pty
 ```
 
 ### 终端 2：启动 Claude 会话
+
 ```bash
 # 进入您的开发项目目录
 cd /path/to/your/project

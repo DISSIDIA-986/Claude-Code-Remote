@@ -248,10 +248,7 @@ class ClaudeCodeRemoteCLI {
           config.config.to
         );
       case 'slack':
-        return (
-          config.config &&
-          (config.config.webhook || config.config.token)
-        );
+        return config.config && (config.config.webhook || config.config.token);
       default:
         return false;
     }
@@ -366,8 +363,7 @@ class ClaudeCodeRemoteCLI {
 
       // Keep process running
       process.stdin.resume();
-
-        } catch (error) {
+    } catch (error) {
       console.error('❌ Failed to start relay service:', error.message);
       process.exit(1);
     }
@@ -430,8 +426,7 @@ class ClaudeCodeRemoteCLI {
       } else {
         console.log('\n📋 No command history found');
       }
-
-        } catch (error) {
+    } catch (error) {
       console.error('❌ Failed to get status:', error.message);
     }
   }
@@ -467,8 +462,7 @@ class ClaudeCodeRemoteCLI {
         `🧹 Cleanup completed: removed ${removedCount} completed commands`
       );
       console.log(`📋 ${afterCount} commands remaining in queue`);
-
-        } catch (error) {
+    } catch (error) {
       console.error('❌ Cleanup failed:', error.message);
     }
   }
@@ -895,7 +889,7 @@ class ClaudeCodeRemoteCLI {
         );
         console.log(
           "4. Manually paste to Claude Code (if auto-paste didn't work)"
-
+        );
 
         const status = automation.getStatus();
         console.log(`\n📄 Command file: ${status.commandFile}`);
@@ -944,6 +938,7 @@ class ClaudeCodeRemoteCLI {
         console.log(
           '⚠️ Permission check failed, but will still attempt execution...'
         );
+      }
 
       // Execute full automation
       const success = await automation.sendCommand(testCommand, 'test-session');

@@ -10,7 +10,7 @@
   },
   "slack": {
     "type": "slack",
-    "enabled": false,
+    "enabled": true,
     "config": {
       "webhook": "",
       "token": "",

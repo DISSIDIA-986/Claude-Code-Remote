@@ -45,10 +45,11 @@ nano .env
 ```
 
 **Required settings:**
+
 ```env
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
-IMAP_USER=your-email@gmail.com  
+IMAP_USER=your-email@gmail.com
 IMAP_PASS=your-app-password
 EMAIL_TO=your-notification-email@gmail.com
 ALLOWED_SENDERS=your-notification-email@gmail.com
@@ -64,22 +65,30 @@ Add to `~/.claude/settings.json`:
 ```json
 {
   "hooks": {
-    "Stop": [{
-      "matcher": "*",
-      "hooks": [{
-        "type": "command",
-        "command": "node /your/path/to/Claude-Code-Remote/claude-remote.js notify --type completed",
-        "timeout": 5
-      }]
-    }],
-    "SubagentStop": [{
-      "matcher": "*",
-      "hooks": [{
-        "type": "command",
-        "command": "node /your/path/to/Claude-Code-Remote/claude-remote.js notify --type waiting",
-        "timeout": 5
-      }]
-    }]
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /your/path/to/Claude-Code-Remote/claude-remote.js notify --type completed",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /your/path/to/Claude-Code-Remote/claude-remote.js notify --type waiting",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -108,6 +117,7 @@ claude
 ### Example Email Flow
 
 **📩 Notification received:**
+
 ```
 Subject: Claude Code Remote Task Complete [#ABC123]
 
@@ -118,6 +128,7 @@ Reply to send new commands.
 ```
 
 **📨 Your reply:**
+
 ```
 Please optimize the performance and fix any bugs you find.
 ```
@@ -150,17 +161,20 @@ tmux attach -t session-name
 ## 🔍 Troubleshooting
 
 **Email not working?**
+
 ```bash
 node claude-remote.js test  # Test email setup
 ```
 
 **Commands not injecting?**
+
 ```bash
 tmux list-sessions  # Check if session exists
 grep ALLOWED_SENDERS .env  # Verify sender whitelist
 ```
 
 **Hooks not triggering?**
+
 ```bash
 node claude-remote.js notify --type completed  # Test manually
 ```
@@ -173,7 +187,7 @@ node claude-remote.js notify --type completed  # Test manually
 
 ## 🤝 Contributing
 
-Found a bug or have a feature request? 
+Found a bug or have a feature request?
 
 - 🐛 **Issues**: [GitHub Issues](https://github.com/JessyTsui/Claude-Code-Remote/issues)
 - 🐦 **Updates**: Follow [@Jiaxi_Cui](https://x.com/Jiaxi_Cui) on Twitter

@@ -37,6 +37,9 @@ const ALLOWED_SENDERS = (process.env.ALLOWED_SENDERS || '')
 const PTY_POOL = new Map();
 let PROCESSED_MESSAGES = new Set();
 
+// Import notification system for failure alerts
+const nodemailer = require('nodemailer');
+
 // Load processed messages
 function loadProcessedMessages() {
   if (existsSync(PROCESSED_PATH)) {
@@ -251,9 +254,10 @@ async function injectCommandRemote(token, command) {
   }
 
   try {
-    log.info({ token, command }, 'Starting remote command injection');
+    log.info({ token, command }, 'Starting remote command injection via tmux-only mode');
+    log.info('Architecture: Using tmux-only execution for maximum reliability in unattended scenarios');
 
-    // Method 1: Prefer tmux unattended injection
+    // Method: tmux unattended injection (no UI fallback for reliability)
     const TmuxInjector = require('./tmux-injector');
     const tmuxSessionName = session.tmuxSession || 'claude-taskping';
     const tmuxInjector = new TmuxInjector(log, tmuxSessionName);
@@ -267,33 +271,134 @@ async function injectCommandRemote(token, command) {
       );
       return true;
     } else {
-      log.warn(
+      log.error(
         { token, error: tmuxResult.error },
-        'Tmux injection failed, trying smart fallback'
-
-      // Method 2: Fall back to smart injector
-      const SmartInjector = require('./smart-injector');
-      const smartInjector = new SmartInjector(log);
-
-      const smartResult = await smartInjector.injectCommand(token, command);
-
-      if (smartResult) {
-        log.info({ token }, 'Smart injection fallback successful');
-        return true;
-      } else {
-        log.error({ token }, 'All remote injection methods failed');
-        return false;
-      }
+        'Tmux injection failed - tmux is the only reliable method for unattended automation'
+      );
+      
+      // Send failure notification back to user via email
+      await sendFailureNotification(session, token, command, tmuxResult.error);
+      return false;
     }
 
-    } catch (error) {
+  } catch (error) {
     log.error({ error, token }, 'Failed to inject command remotely');
+    await sendFailureNotification(session, token, command, error.message);
     return false;
   }
 }
 
-// Try automatic paste to active window
-async function tryAutoPaste(command) {
+// Send failure notification back to user
+async function sendFailureNotification(session, token, command, errorMessage) {
+  try {
+    // Load email configuration from channels config
+    const channelsConfigPath = path.join(__dirname, '../../config/channels.json');
+    if (!existsSync(channelsConfigPath)) {
+      log.warn('No channels config found, cannot send failure notification');
+      return;
+    }
+
+    const channelsConfig = JSON.parse(readFileSync(channelsConfigPath, 'utf8'));
+    const emailConfig = channelsConfig.email;
+
+    if (!emailConfig || !emailConfig.enabled || !emailConfig.config?.smtp) {
+      log.warn('Email not configured, cannot send failure notification');
+      return;
+    }
+
+    // Create transporter
+    const transporter = nodemailer.createTransporter({
+      host: emailConfig.config.smtp.host,
+      port: emailConfig.config.smtp.port,
+      secure: emailConfig.config.smtp.secure || false,
+      auth: {
+        user: emailConfig.config.smtp.auth.user,
+        pass: emailConfig.config.smtp.auth.pass,
+      },
+    });
+
+    const timestamp = new Date().toLocaleString('zh-CN');
+    const projectDir = path.basename(session.cwd || process.cwd());
+
+    const mailOptions = {
+      from: emailConfig.config.from || emailConfig.config.smtp.auth.user,
+      to: emailConfig.config.to,
+      subject: `[Claude-Code-Remote #${token}] ❌ Command Execution Failed - ${projectDir}`,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+          <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #dc3545; margin-top: 0; border-bottom: 2px solid #dc3545; padding-bottom: 10px;">
+              ❌ Remote Command Execution Failed
+            </h2>
+            
+            <div style="background-color: #f8d7da; padding: 15px; border-radius: 6px; border-left: 4px solid #dc3545; margin: 20px 0;">
+              <h4 style="margin-top: 0; color: #721c24;">Failed Command:</h4>
+              <code style="background-color: white; padding: 8px; border-radius: 4px; display: block; color: #212529;">${command}</code>
+            </div>
+
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 6px; border-left: 4px solid #ffc107; margin: 20px 0;">
+              <h4 style="margin-top: 0; color: #856404;">Error Details:</h4>
+              <p style="margin: 0; color: #856404; font-family: monospace;">${errorMessage}</p>
+            </div>
+
+            <div style="background-color: #d4edda; padding: 15px; border-radius: 6px; border-left: 4px solid #28a745; margin: 20px 0;">
+              <h4 style="margin-top: 0; color: #155724;">💡 Recommended Actions:</h4>
+              <ul style="margin: 10px 0; color: #155724;">
+                <li>Ensure tmux session "${session.tmuxSession || 'claude-taskping'}" is running</li>
+                <li>Check if you're in the correct directory: <code>${session.cwd}</code></li>
+                <li>Verify the command syntax is correct</li>
+                <li>Try running the command manually in your tmux session</li>
+              </ul>
+            </div>
+
+            <div style="background-color: #ecf0f1; padding: 15px; border-radius: 6px; margin: 20px 0;">
+              <p style="margin: 0; color: #2c3e50;">
+                <strong>Project:</strong> ${projectDir}<br>
+                <strong>Time:</strong> ${timestamp}<br>
+                <strong>Session:</strong> #${token}<br>
+                <strong>Tmux Session:</strong> ${session.tmuxSession || 'claude-taskping'}
+              </p>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; font-size: 12px; color: #6c757d;">
+              <p style="margin: 5px 0;">🔒 This system now uses tmux-only execution for maximum reliability</p>
+              <p style="margin: 5px 0;">📧 This is an automated failure notification from Claude-Code-Remote</p>
+            </div>
+          </div>
+        </div>
+      `,
+      text: `
+[Claude-Code-Remote #${token}] Command Execution Failed
+
+Failed Command: ${command}
+
+Error: ${errorMessage}
+
+Recommended Actions:
+- Ensure tmux session "${session.tmuxSession || 'claude-taskping'}" is running
+- Check if you're in the correct directory: ${session.cwd}
+- Verify the command syntax is correct
+- Try running the command manually in your tmux session
+
+Project: ${projectDir}
+Time: ${timestamp}
+Session: #${token}
+
+This system now uses tmux-only execution for maximum reliability.
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    log.info({ token }, 'Failure notification sent successfully');
+  } catch (error) {
+    log.error({ error, token }, 'Failed to send failure notification');
+  }
+}
+
+// DEPRECATED: Try automatic paste to active window
+// This function is no longer used in tmux-only architecture for reliability
+// Kept for reference only - DO NOT USE in production
+async function tryAutoPaste_DEPRECATED(command) {
   return new Promise(resolve => {
     // First copy command to clipboard
     const { spawn } = require('child_process');
