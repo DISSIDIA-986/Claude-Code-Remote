@@ -8,6 +8,17 @@
     "type": "email",
     "enabled": true
   },
+  "slack": {
+    "type": "slack",
+    "enabled": false,
+    "config": {
+      "webhook": "",
+      "token": "",
+      "channel": "#general",
+      "username": "Claude-Code-Remote",
+      "iconEmoji": ":robot_face:"
+    }
+  },
   "discord": {
     "type": "chat",
     "enabled": false,

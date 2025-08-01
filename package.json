@@ -9,7 +9,14 @@
     "daemon:stop": "node claude-remote.js daemon stop",
     "daemon:status": "node claude-remote.js daemon status",
     "relay:pty": "node start-relay-pty.js",
-    "relay:start": "INJECTION_MODE=pty node src/relay/relay-pty.js"
+    "relay:start": "INJECTION_MODE=pty node src/relay/relay-pty.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/ tests/ *.js",
+    "lint:fix": "eslint src/ tests/ *.js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [
     "claude-code",
@@ -41,11 +48,11 @@
   },
   "homepage": "https://github.com/Claude-Code-Remote/Claude-Code-Remote#readme",
   "dependencies": {
+    "axios": "^0.27.2",
     "dotenv": "^17.2.1",
     "execa": "^9.6.0",
     "imapflow": "^1.0.191",
     "mailparser": "^3.7.4",
-    "node-imap": "^0.9.6",
     "node-pty": "^1.0.0",
     "nodemailer": "^7.0.5",
     "pino": "^9.7.0",
@@ -63,5 +70,13 @@
     "README.md",
     "QUICKSTART.md",
     "LICENSE"
-  ]
+  ],
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^8.10.2",
+    "eslint-plugin-prettier": "^4.2.5",
+    "jest": "^27.5.1",
+    "prettier": "^2.8.8",
+    "supertest": "^6.3.4"
+  }
 }

@@ -7,72 +7,74 @@ const { spawn } = require('child_process');
 const Logger = require('../core/logger');
 
 class ClaudeAutomation {
-    constructor() {
-        this.logger = new Logger('ClaudeAutomation');
-    }
+  constructor() {
+    this.logger = new Logger('ClaudeAutomation');
+  }
 
-    /**
-     * Fully automated command sending to Claude Code
-     * @param {string} command - Command to send
-     * @param {string} sessionId - Session ID
-     * @returns {Promise<boolean>} - Whether successful
-     */
-    async sendCommand(command, sessionId = '') {
-        try {
-            this.logger.info(`Sending command to Claude Code: ${command.substring(0, 50)}...`);
-            
-            // First copy command to clipboard
-            await this._copyToClipboard(command);
-            
-            // Then execute fully automated paste and execution
-            const success = await this._fullAutomation(command);
-            
-            if (success) {
-                this.logger.info('Command sent and executed successfully');
-                return true;
-            } else {
-                // If failed, try fallback option
-                return await this._fallbackAutomation(command);
-            }
-            
+  /**
+   * Fully automated command sending to Claude Code
+   * @param {string} command - Command to send
+   * @param {string} sessionId - Session ID
+   * @returns {Promise<boolean>} - Whether successful
+   */
+  async sendCommand(command, sessionId = '') {
+    try {
+      this.logger.info(
+        `Sending command to Claude Code: ${command.substring(0, 50)}...`
+
+
+      // First copy command to clipboard
+      await this._copyToClipboard(command);
+
+      // Then execute fully automated paste and execution
+      const success = await this._fullAutomation(command);
+
+      if (success) {
+        this.logger.info('Command sent and executed successfully');
+        return true;
+      } else {
+        // If failed, try fallback option
+        return await this._fallbackAutomation(command);
+      }
+
         } catch (error) {
-            this.logger.error('Claude automation failed:', error.message);
-            return false;
+      this.logger.error('Claude automation failed:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Copy command to clipboard
+   */
+  async _copyToClipboard(command) {
+    return new Promise((resolve, reject) => {
+      const pbcopy = spawn('pbcopy');
+      pbcopy.stdin.write(command);
+      pbcopy.stdin.end();
+
+      pbcopy.on('close', code => {
+        if (code === 0) {
+          this.logger.debug('Command copied to clipboard');
+          resolve();
+        } else {
+          reject(new Error('Failed to copy to clipboard'));
         }
+      });
+
+      pbcopy.on('error', reject);
+    });
+  }
+
+  /**
+   * Full automation solution
+   */
+  async _fullAutomation(command) {
+    if (process.platform !== 'darwin') {
+      return false;
     }
 
-    /**
-     * Copy command to clipboard
-     */
-    async _copyToClipboard(command) {
-        return new Promise((resolve, reject) => {
-            const pbcopy = spawn('pbcopy');
-            pbcopy.stdin.write(command);
-            pbcopy.stdin.end();
-            
-            pbcopy.on('close', (code) => {
-                if (code === 0) {
-                    this.logger.debug('Command copied to clipboard');
-                    resolve();
-                } else {
-                    reject(new Error('Failed to copy to clipboard'));
-                }
-            });
-            
-            pbcopy.on('error', reject);
-        });
-    }
-
-    /**
-     * Full automation solution
-     */
-    async _fullAutomation(command) {
-        if (process.platform !== 'darwin') {
-            return false;
-        }
-
-        return new Promise((resolve) => {
-            const script = `
+    return new Promise(resolve => {
+      const script = `
                 tell application "System Events"
                     -- Define possible Claude Code application names
                     set claudeApps to {"Claude", "Claude Code", "Claude Desktop", "Anthropic Claude"}
@@ -174,53 +176,53 @@ class ClaudeAutomation {
                 end tell
             `;
 
-            const osascript = spawn('osascript', ['-e', script]);
-            let output = '';
-            let error = '';
+      const osascript = spawn('osascript', ['-e', script]);
+      let output = '';
+      let error = '';
 
-            osascript.stdout.on('data', (data) => {
-                output += data.toString().trim();
-            });
+      osascript.stdout.on('data', data => {
+        output += data.toString().trim();
+      });
 
-            osascript.stderr.on('data', (data) => {
-                error += data.toString();
-            });
+      osascript.stderr.on('data', data => {
+        error += data.toString();
+      });
 
-            osascript.on('close', (code) => {
-                if (code === 0 && output.startsWith('success:')) {
-                    const appName = output.split(':')[1];
-                    this.logger.info(`Command successfully sent to ${appName}`);
-                    resolve(true);
-                } else {
-                    this.logger.warn(`Full automation failed: ${output || error}`);
-                    resolve(false);
-                }
-            });
+      osascript.on('close', code => {
+        if (code === 0 && output.startsWith('success:')) {
+          const appName = output.split(':')[1];
+          this.logger.info(`Command successfully sent to ${appName}`);
+          resolve(true);
+        } else {
+          this.logger.warn(`Full automation failed: ${output || error}`);
+          resolve(false);
+        }
+      });
 
-            osascript.on('error', (err) => {
-                this.logger.error('AppleScript execution error:', err.message);
-                resolve(false);
-            });
-        });
+      osascript.on('error', err => {
+        this.logger.error('AppleScript execution error:', err.message);
+        resolve(false);
+      });
+    });
+  }
+
+  /**
+   * Fallback automation solution - more forceful method
+   */
+  async _fallbackAutomation(command) {
+    if (process.platform !== 'darwin') {
+      return false;
     }
 
-    /**
-     * Fallback automation solution - more forceful method
-     */
-    async _fallbackAutomation(command) {
-        if (process.platform !== 'darwin') {
-            return false;
-        }
+    return new Promise(resolve => {
+      // More forceful approach, directly input text
+      const escapedCommand = command
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"')
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, '\\n');
 
-        return new Promise((resolve) => {
-            // More forceful approach, directly input text
-            const escapedCommand = command
-                .replace(/\\/g, '\\\\')
-                .replace(/"/g, '\\"')
-                .replace(/'/g, "\\'")
-                .replace(/\n/g, '\\n');
-
-            const script = `
+      const script = `
                 tell application "System Events"
                     -- Get current foreground application
                     set frontApp to first application process whose frontmost is true
@@ -257,39 +259,39 @@ class ClaudeAutomation {
                 end tell
             `;
 
-            const osascript = spawn('osascript', ['-e', script]);
-            let output = '';
+      const osascript = spawn('osascript', ['-e', script]);
+      let output = '';
 
-            osascript.stdout.on('data', (data) => {
-                output += data.toString().trim();
-            });
+      osascript.stdout.on('data', data => {
+        output += data.toString().trim();
+      });
 
-            osascript.on('close', (code) => {
-                if (code === 0 && (output.includes('success'))) {
-                    this.logger.info(`Fallback automation succeeded: ${output}`);
-                    resolve(true);
-                } else {
-                    this.logger.error(`Fallback automation failed: ${output}`);
-                    resolve(false);
-                }
-            });
+      osascript.on('close', code => {
+        if (code === 0 && output.includes('success')) {
+          this.logger.info(`Fallback automation succeeded: ${output}`);
+          resolve(true);
+        } else {
+          this.logger.error(`Fallback automation failed: ${output}`);
+          resolve(false);
+        }
+      });
 
-            osascript.on('error', () => {
-                resolve(false);
-            });
-        });
+      osascript.on('error', () => {
+        resolve(false);
+      });
+    });
+  }
+
+  /**
+   * Specifically activate Claude Code application
+   */
+  async activateClaudeCode() {
+    if (process.platform !== 'darwin') {
+      return false;
     }
 
-    /**
-     * Specifically activate Claude Code application
-     */
-    async activateClaudeCode() {
-        if (process.platform !== 'darwin') {
-            return false;
-        }
-
-        return new Promise((resolve) => {
-            const script = `
+    return new Promise(resolve => {
+      const script = `
                 tell application "System Events"
                     set claudeApps to {"Claude", "Claude Code", "Claude Desktop", "Anthropic Claude"}
                     
@@ -306,38 +308,38 @@ class ClaudeAutomation {
                 end tell
             `;
 
-            const osascript = spawn('osascript', ['-e', script]);
-            let output = '';
+      const osascript = spawn('osascript', ['-e', script]);
+      let output = '';
 
-            osascript.stdout.on('data', (data) => {
-                output += data.toString().trim();
-            });
+      osascript.stdout.on('data', data => {
+        output += data.toString().trim();
+      });
 
-            osascript.on('close', (code) => {
-                if (code === 0 && output.startsWith('activated:')) {
-                    this.logger.info('Claude Code activated successfully');
-                    resolve(true);
-                } else {
-                    this.logger.warn('Could not activate Claude Code');
-                    resolve(false);
-                }
-            });
+      osascript.on('close', code => {
+        if (code === 0 && output.startsWith('activated:')) {
+          this.logger.info('Claude Code activated successfully');
+          resolve(true);
+        } else {
+          this.logger.warn('Could not activate Claude Code');
+          resolve(false);
+        }
+      });
 
-            osascript.on('error', () => resolve(false));
-        });
+      osascript.on('error', () => resolve(false));
+    });
+  }
+
+  /**
+   * Check system permissions and attempt to request
+   */
+  async requestPermissions() {
+    if (process.platform !== 'darwin') {
+      return false;
     }
 
-    /**
-     * Check system permissions and attempt to request
-     */
-    async requestPermissions() {
-        if (process.platform !== 'darwin') {
-            return false;
-        }
-
-        try {
-            // Try a simple operation to trigger permission request
-            const script = `
+    try {
+      // Try a simple operation to trigger permission request
+      const script = `
                 tell application "System Events"
                     try
                         set frontApp to name of first application process whose frontmost is true
@@ -348,48 +350,48 @@ class ClaudeAutomation {
                 end tell
             `;
 
-            const result = await this._runAppleScript(script);
-            return result === 'permission_granted';
-        } catch (error) {
-            this.logger.error('Permission check failed:', error.message);
-            return false;
+      const result = await this._runAppleScript(script);
+      return result === 'permission_granted';
+    } catch (error) {
+      this.logger.error('Permission check failed:', error.message);
+      return false;
+    }
+  }
+
+  async _runAppleScript(script) {
+    return new Promise((resolve, reject) => {
+      const osascript = spawn('osascript', ['-e', script]);
+      let output = '';
+      let error = '';
+
+      osascript.stdout.on('data', data => {
+        output += data.toString();
+      });
+
+      osascript.stderr.on('data', data => {
+        error += data.toString();
+      });
+
+      osascript.on('close', code => {
+        if (code === 0) {
+          resolve(output.trim());
+        } else {
+          reject(new Error(error || `Exit code: ${code}`));
         }
-    }
+      });
+    });
+  }
 
-    async _runAppleScript(script) {
-        return new Promise((resolve, reject) => {
-            const osascript = spawn('osascript', ['-e', script]);
-            let output = '';
-            let error = '';
-
-            osascript.stdout.on('data', (data) => {
-                output += data.toString();
-            });
-
-            osascript.stderr.on('data', (data) => {
-                error += data.toString();
-            });
-
-            osascript.on('close', (code) => {
-                if (code === 0) {
-                    resolve(output.trim());
-                } else {
-                    reject(new Error(error || `Exit code: ${code}`));
-                }
-            });
-        });
-    }
-
-    /**
-     * Get status information
-     */
-    getStatus() {
-        return {
-            platform: process.platform,
-            supported: process.platform === 'darwin',
-            name: 'Claude Code Automation'
-        };
-    }
+  /**
+   * Get status information
+   */
+  getStatus() {
+    return {
+      platform: process.platform,
+      supported: process.platform === 'darwin',
+      name: 'Claude Code Automation',
+    };
+  }
 }
 
 module.exports = ClaudeAutomation;
