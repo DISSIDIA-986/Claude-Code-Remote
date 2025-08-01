@@ -49,7 +49,6 @@
   "homepage": "https://github.com/Claude-Code-Remote/Claude-Code-Remote#readme",
   "dependencies": {
     "axios": "^0.27.2",
-    "dotenv": "^17.2.1",
     "execa": "^9.6.0",
     "imapflow": "^1.0.191",
     "mailparser": "^3.7.4",
@@ -72,6 +71,7 @@
     "LICENSE"
   ],
   "devDependencies": {
+    "dotenv": "^17.2.1",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^8.10.2",
     "eslint-plugin-prettier": "^4.2.5",
